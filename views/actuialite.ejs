@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actualités</title>
+    <link rel="stylesheet" href="public/css/actuialite.css"> <!-- Lien vers votre fichier CSS -->
+  
+</head>
+<body>
+  <section id="actuialite">
+    <h1>Actualités</h1>
+    <div class="card-container">
+        <% actuialites.forEach(function(actuialite) { %>
+            <div class="card">
+                <img  class="imag" src="<%= actuialite.image %>" alt="<%= actuialite.titre %>">
+                <div class="card-content">
+                    <h2 class="card-title"><%= actuialite.titre %></h2>
+                    <p class="card-date"> Publie le <%= new Date(actuialite.date_publication).toLocaleDateString('fr-FR') %></p>
+                    <p class="card-description"><%= actuialite.contenu %></p>
+                  
+                </div>
+               
+            </div>
+        <% }); %>
+    </div>
+</section>
+</body>
+</html>

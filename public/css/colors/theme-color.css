@@ -1,0 +1,19 @@
+
+.header .navbar-dark {
+  background-color: #385c90; /* color of navbar */
+}
+
+.bg-theme-colored {
+   background-color: #385c90 !important;  /*color time */
+}
+.text-theme-colored {
+  color:#789dcf !important;/*  color of the title  */
+}
+
+.line-bottom:after {
+  border: 1px solid #385c90;
+}
+
+.footer .footer-widget .line-bottom:after {
+  border: 1px solid #385c90;
+}
