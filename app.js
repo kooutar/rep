@@ -198,6 +198,29 @@ app.post('/login', (req, res) => {
         }
       });
     });
+// Route pour afficher les événements auxquels un utilisateur a participé
+app.get('/profil/:id', (req, res) => {
+  const userId = req.params.id;
+
+  // Requête pour récupérer les événements auxquels l'utilisateur a participé
+  const query = `
+      SELECT  e.titre, c.status
+      FROM evenements e
+      JOIN candidature c ON e.id = c.evenement_id
+      WHERE c.utilisateur_id = ?
+  `;
+
+  db.query(query, [userId], (err, results) => {
+      if (err) {
+          console.error('Erreur lors de la récupération des événements:', err);
+          return res.status(500).send('Erreur lors de la récupération des événements.');
+      }
+
+      // Rendre la vue avec les événements
+      res.render('profile', { evenements: results });
+  });
+});
+
 
 // Route pour traiter le formulaire et stocker l'image dans la base de données
 app.post('/actuialite', upload.single('imgActulaite'), (req, res) => {
@@ -252,6 +275,7 @@ app.post('/event', upload.single('imgevent'), (req, res) => {
 });
 
 app.get('/evenements', (req, res) => {
+  const userId = req.session.userId;
   const query = 'SELECT * FROM evenements';
   db.query(query, (err, results) => {
     if (err) {
@@ -264,7 +288,10 @@ app.get('/evenements', (req, res) => {
       console.log('Chemin de l\'image:', event.image);
     });
 
-    res.render('evenements', { evenements: results });
+    res.render('evenements', { 
+      evenements: results,
+      userId: userId
+  });
   });
 });
 

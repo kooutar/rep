@@ -1,11 +1,54 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Profil Utilisateur</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        img {
+            max-width: 100px;
+            height: auto;
+        }
+    </style>
 </head>
 <body>
-    profile
+    <h1>Événements auxquels vous avez participé</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Titre</th>
+                <th>status</th>
+                
+            </tr>
+        </thead>
+        <tbody>
+            <% if (evenements.length > 0) { %>
+                <% evenements.forEach(function(evenement) { %>
+                    <tr>
+                        <td><%= evenement.titre %></td>
+                        <td><%= evenement.status %></td>
+                        
+                    </tr>
+                <% }) %>
+            <% } else { %>
+                <tr>
+                    <td colspan="3">Aucun événement trouvé.</td>
+                </tr>
+            <% } %>
+        </tbody>
+    </table>
 </body>
 </html>
