@@ -57,8 +57,10 @@
                         <td><%= candidature.profession %></td>
                         <td><%= candidature.organisation %></td>
                         <td>
-                            <a class="btn-link btn-accept" href="/update-candidature">accepter</a>
-                            <a  class class="btn-link btn-reject" href="/update-candidature> refuser</a>
+                            <a href="/update-candidature/approuvée/<%= candidature.email %>" class="btn-link btn-accept">approuvée</a>
+                            <a href="/update-candidature/rejetée/<%= candidature.email %>" class="btn-link btn-reject">rejetée</a>
+                            
+
                         </td>
                             
                     </tr>

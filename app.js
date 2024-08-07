@@ -11,11 +11,9 @@ const multer = require('multer');//pour les img
 // const fs = require('fs');  // Importer fs pour lire le fichier en tant que binaire
 exports.app = app;
 
-
 //Configuration de l'application
 app.use(bodyParser.json());// Utilisation de body-parser pour analyser les requêtes JSON
 app.use(bodyParser.urlencoded({ extended: true }));// Middleware pour parser les données du formulaire
-
 
 app.use(express.static(path.join(__dirname,'')));// Servir les fichiers statiques depuis le répertoire courant
 app.use(express.static('public'));
@@ -31,12 +29,9 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-
-
 app.get('/',function(req, resp){
   resp.render('home');
 });
-
 
 // Configuration de la connexion à la base de données MySQL
 const db = mysql.createConnection({
@@ -49,7 +44,6 @@ db.connect((err) => {
     if (err) throw err;
     console.log('Connected to database');
 });
-
 
 app.use(session({
     secret: '123456',
@@ -64,8 +58,6 @@ app.use(session({
     res.locals.message = req.flash('message');
     next();
   });
-
-
 
 app.get('/candidater/:id', (req, res) => {
   const eventId = req.params.id;
@@ -92,7 +84,6 @@ app.get('/candidater/:id', (req, res) => {
   });
 });
 
-
 app.get('/listeCandidatures/:id', (req, res) => {
   const eventId = req.params.id;
   console.log('id event est liste ', eventId);
@@ -112,7 +103,6 @@ app.get('/listeCandidatures/:id', (req, res) => {
       res.render('candidatures', { candidatures: results });
   });
 });
-
 
 app.post('/inscription', (req, res) => {
   const { nom, prenom, telephone, email, adresse, profession, organisation, mot_de_passe } = req.body;
@@ -146,27 +136,47 @@ app.post('/inscription', (req, res) => {
   });
 });
 
-app.get('/update-candidature', (req, res) => {
-  const candidatureId = req.params.id;
-  const status = req.params.status;
+// Route pour accepter une candidature
+app.get('/update-candidature/accept/:email', (req, res) => {
+  const email = req.params.email;
 
-  // Valider que le statut est "accepted" ou "rejected" pour éviter les erreurs
-  if (status !== 'accepted' && status !== 'rejected') {
-      return res.status(400).send('Statut non valide.');
-  }
-
-  const query = 'UPDATE candidature SET statut = ? WHERE id = ?';
-  db.query(query, [status, candidatureId], (err, results) => {
+  // Mettre à jour le statut dans la table candidatures
+  const query = `
+      UPDATE candidature 
+      SET status = ? 
+      WHERE utilisateur_id = (SELECT id FROM utilisateurs WHERE email = ?)
+  `;
+  db.query(query, ['approuvée', email], (err, results) => {
       if (err) {
           console.error('Erreur lors de la mise à jour de la candidature :', err);
           return res.status(500).send('Erreur lors de la mise à jour de la candidature.');
       }
 
-      // Rediriger vers la liste des candidatures (vous devrez peut-être ajuster cette redirection)
-      res.redirect('/listeCandidatures/' + req.query.eventId); 
+      // Redirigez vers une page appropriée après la mise à jour
+      res.redirect('/liste-des-candidatures');
   });
 });
 
+// Route pour refuser une candidature
+app.get('/update-candidature/reject/:email', (req, res) => {
+  const email = req.params.email;
+
+  // Mettre à jour le statut dans la table candidatures
+  const query = `
+      UPDATE candidature 
+      SET status = ? 
+      WHERE utilisateur_id = (SELECT id FROM utilisateurs WHERE email = ?)
+  `;
+  db.query(query, ['rejetée', email], (err, results) => {
+      if (err) {
+          console.error('Erreur lors de la mise à jour de la candidature :', err);
+          return res.status(500).send('Erreur lors de la mise à jour de la candidature.');
+      }
+
+      // Redirigez vers une page appropriée après la mise à jour
+      res.redirect('/liste-des-candidatures');
+  });
+});
 
 
 // login

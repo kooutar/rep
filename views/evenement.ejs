@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Evenements</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -37,18 +37,27 @@
             margin-left: auto;
         }
 
-        form {
+        .formulaire {
             background-color: white;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            max-width: 400px;
+            max-width: 100%;
             margin: 0 auto;
         }
 
-        form input[type="text"],
-        form input[type="date"],
-        form input[type="file"] {
+        .formulaire h2 {
+            margin-top: 0;
+        }
+
+        .formulaire form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .formulaire input[type="text"],
+        .formulaire input[type="date"],
+        .formulaire input[type="file"] {
             width: 100%;
             padding: 10px;
             margin-bottom: 15px;
@@ -57,7 +66,7 @@
             font-size: 1rem;
         }
 
-        form input[type="submit"] {
+        .formulaire input[type="submit"] {
             width: 100%;
             padding: 12px;
             background-color: #4CAF50;
@@ -69,12 +78,64 @@
             transition: background-color 0.3s ease;
         }
 
-        form input[type="submit"]:hover {
+        .formulaire input[type="submit"]:hover {
             background-color: #45a049;
         }
 
-        form input[type="file"] {
+        .formulaire input[type="file"] {
             padding: 3px;
+        }
+
+        .container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .textinput {
+            width: 90%;
+            padding: 6px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .remove-btn {
+            background-color: #f44336;
+        }
+
+        .remove-btn:hover {
+            background-color: #d32f2f;
         }
     </style>
 </head>
@@ -85,34 +146,79 @@
         <a href="/liste-des-candidatures">Liste des Candidatures</a>
         <a href="/login" class="navbar-right">Déconnexion</a>
     </div>
-    <div class="fromulaire">
-        <h2>evenements</h2>
-    <form action="/event" method="post" enctype="multipart/form-data">
-        <input type="text" id="titre" name="titre" placeholder="titre">
-        <input type="text" id="discription" name="discription" placeholder="discription">
-        <label for="date_debut">Date de début :</label>
-        <input type="date" src="" alt=""  id="date_debut" name="date_debut">
-        <label for="date_fint">Date de fin :</label>
-        <input type="date" src="" alt=""  id="date_fin" name="date_fin">
-        <input type="text" id="lieu" name="lieu" placeholder="lieu">
-        <input type="file" id="imgevent" name="imgevent" accept="image/*">
-        <input  type="submit" value="enregister">
-    </form>
-</div>
-<script>
-    // Empêcher la sélection de dates passées pour la date de début
-    const dateDebutInput = document.getElementById('date_debut');
-    const dateFinInput = document.getElementById('date_fin');
-    
-    // Obtenir la date d'aujourd'hui au format YYYY-MM-DD
-    const today = new Date().toISOString().split('T')[0];
-    dateDebutInput.setAttribute('min', today);
 
-    // Mettre à jour la date minimale de fin en fonction de la date de début sélectionnée
-    dateDebutInput.addEventListener('change', function() {
-        dateFinInput.value = ''; // Réinitialiser le champ date_fin
-        dateFinInput.setAttribute('min', this.value);
-    });
-</script>
+    <div class="formulaire">
+        <h2>Evenements</h2>
+        <form action="/event" method="post" enctype="multipart/form-data">
+            <input type="text" id="titre" name="titre" placeholder="Titre" required>
+            <input type="text" id="description" name="description" placeholder="Description" required>
+            <label for="date_debut">Date de début :</label>
+            <input type="date" id="date_debut" name="date_debut" required>
+            <label for="date_fin">Date de fin :</label>
+            <input type="date" id="date_fin" name="date_fin" required>
+            <input type="text" id="lieu" name="lieu" placeholder="Lieu" required>
+            <input type="file" id="imgevent" name="imgevent" accept="image/*" required>
+            <label for="speakers">Speakers</label>
+            <div class="container">
+                <button type="button" id="add-row">+</button>
+                <table id="data-table">
+                    <thead>
+                        <tr>
+                            <th>Nom</th>
+                            <th>partie</th>
+                           
+                            <th>debut</th>
+                            <th>fin</th>
+                            <th>image</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body"></tbody>
+                </table>
+            </div>
+            <input type="submit" value="Enregistrer">
+        </form>
+    </div>
+
+    <script>
+        const tableBody = document.getElementById('table-body');
+        const addRowButton = document.getElementById('add-row');
+
+        function createRow() {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><input type="text" placeholder="Nom"></td>
+                <td><input  calss="textinput" type="text" placeholder="partie a parler"></td>
+                <td><input  calss="textinput" type="date" id="date_fin" name="date_debut" required></td>
+            <td><input  calss="textinput" type="date" id="date" name="lieu" placeholder="date_fin" required></td>
+           <td> <input  calss="file" type="file" id="imgevent" name="imgevent" accept="image/*" ></td>
+                <td><button class="remove-btn">-</button></td>
+            `;
+
+            row.querySelector('.remove-btn').addEventListener('click', () => {
+                row.remove();
+            });
+
+            tableBody.appendChild(row);
+        }
+
+        addRowButton.addEventListener('click', createRow);
+
+        // Create the first row on page load
+        createRow();
+
+        // Prevent past dates for start date
+        const dateDebutInput = document.getElementById('date_debut');
+        const dateFinInput = document.getElementById('date_fin');
+
+        const today = new Date().toISOString().split('T')[0];
+        dateDebutInput.setAttribute('min', today);
+
+        dateDebutInput.addEventListener('change', function() {
+            dateFinInput.value = '';
+            dateFinInput.setAttribute('min', this.value);
+        });
+        
+    </script>
 </body>
 </html>

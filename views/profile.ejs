@@ -5,27 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profil Utilisateur</title>
     <style>
+        .table{
+            display: flex;
+    justify-content: center; /* Centre le tableau horizontalement */
+    padding: 20px;
+        }
         table {
-            width: 100%;
+            width: 80%;
             border-collapse: collapse;
+            text-align: center;
         }
         th, td {
             padding: 8px 12px;
             border: 1px solid #ccc;
-            text-align: left;
+            text-align: center;
         }
         th {
             background-color: #f2f2f2;
         }
-        img {
-            max-width: 100px;
-            height: auto;
+        .titre {
+            max-width: 700px;
+            
+        }
+        h1{
+            text-align: center;
         }
     </style>
 </head>
 <body>
     <h1>Événements auxquels vous avez participé</h1>
-
+    <div class="table">
     <table>
         <thead>
             <tr>
@@ -38,7 +47,7 @@
             <% if (evenements.length > 0) { %>
                 <% evenements.forEach(function(evenement) { %>
                     <tr>
-                        <td><%= evenement.titre %></td>
+                        <td class="titre"><%= evenement.titre %></td>
                         <td><%= evenement.status %></td>
                         
                     </tr>
@@ -50,5 +59,6 @@
             <% } %>
         </tbody>
     </table>
+</div>
 </body>
 </html>
