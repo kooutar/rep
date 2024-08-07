@@ -18,7 +18,7 @@ app.use(bodyParser.urlencoded({ extended: true }));// Middleware pour parser les
 
 
 app.use(express.static(path.join(__dirname,'')));// Servir les fichiers statiques depuis le répertoire courant
-
+app.use(express.static('public'));
 app.set('views', path.join(__dirname,'views'))
 app.set('view engine', 'ejs');
 const storage = multer.diskStorage({
@@ -64,56 +64,132 @@ app.use(session({
     res.locals.message = req.flash('message');
     next();
   });
-/////// insription
-  app.post('/inscription', (req, res) => {
-    const { nom, prenom, telephone, email, adresse, profession, organisation, mot_de_passe } = req.body;
 
-    const sql1 = "SELECT * FROM utilisateurs WHERE email=? ";
-    db.query(sql1, [email], (err, results) => {
-        if (err) {
-            console.error('Erreur lors de la vérification de l\'email :', err);
-            return res.status(500).send('Erreur lors de la vérification de l\'email');
-        }
 
-        if (results.length > 0) {
-           console.log( 'email existe déjà en base de données');
-              req.flash('message', 'email deja enregistrer  !');
-             return res.redirect('/index');
-        } else {
-            const sql = `INSERT INTO utilisateurs (nom, prenom, telephone, email, adresse, profession, organisation, mot_de_passe, role)
-                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Utilisateur')`;
 
-            db.query(sql, [nom, prenom, telephone, email, adresse, profession, organisation, mot_de_passe], (err, result) => {
-                if (err) {
-                    console.error('Erreur lors de l\'insertion de l\'utilisateur:', err);
-                    res.status(500).send('Erreur serveur');
-                } else {
-                    console.log('Inscription réussie !')
-                    req.flash('message', 'Inscription réussie !');
-                   return res.redirect('/index');
-                }
-            });
-        } 
+app.get('/candidater/:id', (req, res) => {
+  const eventId = req.params.id;
+  console.log('id event est ', eventId);
+  const query = 'SELECT titre, image FROM evenements WHERE id = ?';
+  db.query(query, [eventId], (err, results) => {
+    if (err) {
+      console.error('Erreur lors de la récupération de l\'événement:', err);
+      return res.status(500).send('Erreur lors de la récupération de l\'événement.');
+    }
+    if (results.length === 0) {
+      return res.status(404).send('Événement non trouvé.');
+    }
+    
+    // Ajoutez le console.log ici pour vérifier le chemin de l'image
+    const imagePath = results[0].image.replace(/\\/g, '/');
+    console.log('Chemin de l\'image:', imagePath);
+
+    res.render('candidater', { 
+      evenement: results[0], 
+      id: eventId, 
+      image: results[0].image 
     });
+  });
 });
+
+
+app.get('/listeCandidatures/:id', (req, res) => {
+  const eventId = req.params.id;
+  console.log('id event est liste ', eventId);
+
+  const query = `
+      SELECT nom, prenom, telephone, email, adresse, profession, organisation
+      FROM utilisateurs u, candidature c
+      WHERE u.id = c.utilisateur_id AND c.evenement_id = ?
+  `;
+
+  db.query(query, [eventId], (err, results) => {
+      if (err) {
+          console.error('Erreur lors de la récupération des candidatures :', err);
+          return res.status(500).send('Erreur lors de la récupération des candidatures.');
+      }
+    
+      res.render('candidatures', { candidatures: results });
+  });
+});
+
+
+app.post('/inscription', (req, res) => {
+  const { nom, prenom, telephone, email, adresse, profession, organisation, mot_de_passe } = req.body;
+
+  const sql1 = "SELECT * FROM utilisateurs WHERE email=? ";
+  db.query(sql1, [email], (err, results) => {
+      if (err) {
+          console.error('Erreur lors de la vérification de l\'email :', err);
+          return res.status(500).send('Erreur lors de la vérification de l\'email');
+      }
+
+      if (results.length > 0) {
+         console.log( 'email existe déjà en base de données');
+            req.flash('message', 'email deja enregistrer  !');
+           return res.redirect('/index');
+      } else {
+          const sql = `INSERT INTO utilisateurs (nom, prenom, telephone, email, adresse, profession, organisation, mot_de_passe, role)
+                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Utilisateur')`;
+
+          db.query(sql, [nom, prenom, telephone, email, adresse, profession, organisation, mot_de_passe], (err, result) => {
+              if (err) {
+                  console.error('Erreur lors de l\'insertion de l\'utilisateur:', err);
+                  res.status(500).send('Erreur serveur');
+              } else {
+                  console.log('Inscription réussie !')
+                  req.flash('message', 'Inscription réussie !');
+                 return res.redirect('/index');
+              }
+          });
+      } 
+  });
+});
+
+app.get('/update-candidature', (req, res) => {
+  const candidatureId = req.params.id;
+  const status = req.params.status;
+
+  // Valider que le statut est "accepted" ou "rejected" pour éviter les erreurs
+  if (status !== 'accepted' && status !== 'rejected') {
+      return res.status(400).send('Statut non valide.');
+  }
+
+  const query = 'UPDATE candidature SET statut = ? WHERE id = ?';
+  db.query(query, [status, candidatureId], (err, results) => {
+      if (err) {
+          console.error('Erreur lors de la mise à jour de la candidature :', err);
+          return res.status(500).send('Erreur lors de la mise à jour de la candidature.');
+      }
+
+      // Rediriger vers la liste des candidatures (vous devrez peut-être ajuster cette redirection)
+      res.redirect('/listeCandidatures/' + req.query.eventId); 
+  });
+});
+
+
 
 // login
 app.post('/login', (req, res) => {
       const { mail, password } = req.body;
-      const sql = 'SELECT role FROM utilisateurs WHERE email = ? AND mot_de_passe = ?';
+      
+      const sql = 'SELECT id, role FROM utilisateurs WHERE email = ? AND mot_de_passe = ?';
       db.query(sql, [mail, password], (err, results) => {
         if (err) {
           console.error('Erreur lors de la requête de connexion :', err);
           return res.status(500).json({ message: 'Erreur lors de la connexion : ' + err.message });
         }
         if (results.length > 0) {
+          const userId = results[0].id;
           const role = results[0].role;
           if (role === 'Administrateur') {
             //  res.json({ message: 'Connexion réussie'});
              res.redirect('/admin');
           } else {
-            //  res.json({ message: 'Connexion réussie' });
-             res.redirect('/evenement'); 
+            // Lors de la connexion
+            req.session.userId = userId;
+        console.log('User ID stored in session:', req.session.userId);
+             res.redirect('/evenements'); 
           }
         } else {
             console.log("mdp ou mail inccorect ")
@@ -174,51 +250,56 @@ app.post('/event', upload.single('imgevent'), (req, res) => {
     res.redirect('/evenements');
   });
 });
-//pour afficher les evenements 
+
 app.get('/evenements', (req, res) => {
   const query = 'SELECT * FROM evenements';
   db.query(query, (err, results) => {
-      if (err) {
-          console.error('Erreur lors de la récupération des données:', err);
-          return res.status(500).send('Erreur lors de la récupération des données.');
-      }
-      res.render('evenements', { evenements: results });
+    if (err) {
+      console.error('Erreur lors de la récupération des événements:', err);
+      return res.status(500).send('Erreur lors de la récupération des événements.');
+    }
+
+    // Ajoutez un console.log ici pour vérifier les chemins des images de chaque événement
+    results.forEach(event => {
+      console.log('Chemin de l\'image:', event.image);
+    });
+
+    res.render('evenements', { evenements: results });
   });
 });
 
-app.get('/candidater/:id', (req, res) => {
-  const eventId = req.params.id;
-  console.log('id est ', eventId)
-  const query = 'SELECT titre , image FROM evenements WHERE id = ?';
-  db.query(query, [eventId], (err, results) => {
-      if (err) {
-          console.error('Erreur lors de la récupération de l\'événement:', err);
-          return res.status(500).send('Erreur lors de la récupération de l\'événement.');
-      }
-      if (results.length === 0) {
-          return res.status(404).send('Événement non trouvé.');
-      }
-      // res.render('candidater', { evenement: results[0] });
-      res.render('candidater', { 
-        evenement: results[0], 
-        id: eventId, 
-        image: results[0].image 
-       
-        
+app.get('/liste-des-candidatures', (req, res) => {
+  const query = 'SELECT * FROM evenements';
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error('Erreur lors de la récupération des événements:', err);
+      return res.status(500).send('Erreur lors de la récupération des événements.');
+    }
+
+    // Ajoutez un console.log ici pour vérifier les chemins des images de chaque événement
+    results.forEach(event => {
+      console.log('Chemin de l\'image:', event.image);
     });
-    
+
+    res.render('liste-des-candidatures', { evenements: results });
   });
 });
+
+
 
 app.post('/submit-inscription', (req, res) => {
-  const { eventID, nom, prenom, email } = req.body;
-  
-  const query = 'INSERT INTO candidatures (event_id, nom, prenom, email) VALUES (?, ?, ?, ?)';
-  db.query(query, [eventID, nom, prenom, email], (err, result) => {
+  const userId = req.session.userId;// ID de l'utilisateur connecté stocké dans la session
+  // const eventId = req.session.eventID; 
+  const  eventId  = req.body.eventId;
+  console.log('submit id',userId);
+  console.log('submit event',eventId);
+  const query = 'INSERT INTO candidature ( utilisateur_id ,evenement_id ) VALUES (?, ?)';
+  db.query(query, [userId, eventId], (err, result) => {
       if (err) {
           console.error('Erreur lors de l\'inscription:', err);
           return res.status(500).send('Erreur lors de l\'inscription.');
       }
+      req.flash('message', 'votre inscription ce faite avec succés  merci de attendre l\'acception !');
       res.redirect('/evenements'); // Redirige vers la liste des événements après l'inscription
   });
 });
@@ -226,8 +307,11 @@ app.post('/submit-inscription', (req, res) => {
 
 //les routes
 app.get('/index', (req, res) => {
-  res.render('index');
+  res.render('index', {
+    messages: req.flash('message') // Assurez-vous que les messages sont passés à la vue
+  });
 });
+
   app.get('/login', (req, res) => {
     res.render('login');
   });
@@ -246,10 +330,22 @@ app.get('/index', (req, res) => {
   app.get('/actuialite', (req, res) => {
     res.render('actuialite');
   });
-  // app.get('/candidater/:id', (req, res) => {
-  //   res.render('candidater');
-  // });
-  
+  app.get('/profile', (req, res) => {
+    res.render('profile');
+  });
+
+  app.get('/candidater', (req, res) => {
+    res.render('candidater');
+  });
+   app.get('/liste-des-candidatures' , (req, res) => {
+   
+    res.render('liste-des-candidatures');
+   });
+
+   app.get('/candidatures' , (req, res) => {
+   
+    res.render('candidatures');
+   });
 
   app.listen(8000,function(){
     console.log("heard en 8000");

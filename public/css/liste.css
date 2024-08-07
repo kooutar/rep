@@ -1,0 +1,132 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .navbar {
+    background-color: #385c90;
+    overflow: hidden;
+  }
+  
+  .navbar .nav-list {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  .navbar .nav-list li {
+    display: inline;
+  }
+  
+  .navbar .nav-list li a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 20px;
+    text-decoration: none;
+  }
+  
+  .navbar .nav-list li a:hover {
+    background-color: #4b78b4;
+  }
+  
+  /* Styles de la section événements */
+  #evenements {
+    padding: 20px;
+    background: linear-gradient(to bottom, #385c90, #ffffff);
+    color: #333;
+  }
+  
+  #evenements h1 {
+    text-align: center;
+    color: white;
+    margin-bottom: 20px;
+  }
+  
+  .message{
+  text-align: center;
+  font-size: large;
+  z-index: 10;
+  
+  }
+  
+  
+  .card-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    z-index: 0;
+  }
+  
+  .card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    width: 300px;
+    transition: transform 0.3s;
+  }
+  
+  .card:hover {
+    transform: translateY(-10px);
+  }
+  
+  .card img.imag {
+    width: 100%;
+    height: auto;
+  }
+  
+  .card-content {
+    padding: 20px;
+  }
+  
+  .card-title {
+    font-size: 1.5em;
+    margin: 0;
+    color: #385c90;
+    text-align: center;
+  }
+  
+  .card-lieu {
+    font-size: 1.2em;
+    color: #4b78b4;
+    margin: 5px 0;
+  }
+  .box{
+    display: flex;
+  }
+  
+  .card-date {
+    font-size: 0.9em;
+    color: #777;
+    margin: 10px 0;
+  }
+  
+  .card-description {
+    font-size: 1em;
+    color: #333;
+  }
+  
+  .card-actions {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 20px 20px;
+  }
+  
+  .card-actions .lien {
+    text-decoration: none;
+    color: #385c90;
+    font-weight: bold;
+    background-color: #e7e7e7;
+    padding: 10px 20px;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+  }
+  
+  .card-actions .lien:hover {
+    background-color: #d5d5d5;
+  }

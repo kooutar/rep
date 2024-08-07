@@ -105,13 +105,15 @@ input[type="submit"]:hover {
 </style>
 <body>
     <div class="container">
-        <h2>Inscription Utilisateur</h2>
+        <h2>Inscription </h2>
+        
         <% if (typeof message !== 'undefined' && message.length > 0) { %>
             <div class="message"><%= message %></div>
         <% } %>
         <form action="/inscription" method="post">
             <div class="form-row">
                 <div class="form-group">
+                   
                     <label for="nom">Nom:</label>
                     <input type="text" id="nom" name="nom" required>
                 </div>

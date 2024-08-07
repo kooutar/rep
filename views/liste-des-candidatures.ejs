@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/css/Liste.css"> <!-- Lien vers votre fichier CSS -->
+   
+</head>
+<body>
+    <section id="evenements">
+        <h1>Événements</h1>
+        <div class="message">
+        <div class="card-container">
+            <% evenements.forEach(function(evenement) { %>
+                <div class="card">
+                    <img class="imag" src="/<%= evenement.image.replace(/\\/g, '/') %>" alt="<%= evenement.titre %>">
+
+
+                    <div class="card-content">
+                        <h2 class="card-title"><%= evenement.titre %></h2>
+                        <h3 class="card-lieu"><i class="fas fa-map-marker-alt"></i> <%= evenement.lieu %></h3>
+                        <p class="card-date"><i class="fas fa-calendar-alt"></i> De <%= new Date(evenement.date_debut).toLocaleDateString('fr-FR') %> à <%= new Date(evenement.date_fin).toLocaleDateString('fr-FR') %></p>
+                    </div>
+                    <div class="card-actions">
+                        <a class="lien" href="/listeCandidatures/<%= evenement.id %>">Voir les Candidatures </a>
+                    </div>
+                </div>
+            <% }); %>
+        </div>
+       
+    </section>
+    
+</body>
+</html>

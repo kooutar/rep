@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liste des Candidatures</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .btn-accept {
+            
+            background-color: #4caf50; /* Green */
+        }
+        .btn-reject {
+            background-color: #f44336; /* Red */
+        }
+        .btn-link:hover {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <h1>Liste des Candidatures pour l'Événement</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Prénom</th>
+                <th>Téléphone</th>
+                <th>Email</th>
+                <th>Adresse</th>
+                <th>Profession</th>
+                <th>Organisation</th>
+                <th>statue</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% if (candidatures.length > 0) { %>
+                <% candidatures.forEach(function(candidature) { %>
+                    <tr>
+                        <td><%= candidature.nom %></td>
+                        <td><%= candidature.prenom %></td>
+                        <td><%= candidature.telephone %></td>
+                        <td><%= candidature.email %></td>
+                        <td><%= candidature.adresse %></td>
+                        <td><%= candidature.profession %></td>
+                        <td><%= candidature.organisation %></td>
+                        <td>
+                            <a class="btn-link btn-accept" href="/update-candidature">accepter</a>
+                            <a  class class="btn-link btn-reject" href="/update-candidature> refuser</a>
+                        </td>
+                            
+                    </tr>
+                <% }) %>
+            <% } else { %>
+                <tr>
+                    <td colspan="8">Aucune candidature trouvée pour cet événement.</td>
+                </tr>
+            <% } %>
+        </tbody>
+    </table>
+</body>
+</html>
